@@ -70,7 +70,7 @@ def post_to_api(window, using):
     try:
         resp = post(url=f'{cf.server}/device/set', json={
             'secret': cf.secret,
-            'id': DEVICE_ID,
+            'id': cf.device_id,
             'show_name': cf.device_name,
             'using': using,
             'app_name': window
