@@ -28,6 +28,11 @@
 - 错误处理
 - 可自定义扩展（）
 
+### TODO
+
+- [ ] 开机自启动
+- [ ] 欢迎建议！
+
 ### 截图
 ![截图1（亮色）](docs/images/light-1.png)
 <center style="font-size:14px;color:#C0C0C0;">浅色模式</center> 
