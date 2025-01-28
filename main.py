@@ -8,12 +8,20 @@ from nt_thread import getDictThread, getListThread
 
 from widgets import *
 
+# 适配高DPI缩放
+QApplication.setHighDpiScaleFactorRoundingPolicy(
+    Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
 
 class SleepyClient(FluentWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.dashboard_interface = uic.loadUi('./assets/ui/main.ui')
         self.dashboard_interface.setObjectName('mainPage')
+        self.settings_interface = uic.loadUi('./assets/ui/settings.ui')
+        self.dashboard_interface.setObjectName('settingsPage')
 
         self.widgets_grid = None
         self.get_json_thread = None
@@ -70,7 +78,9 @@ class SleepyClient(FluentWindow):
 
     def initUi(self):
         setTheme(Theme.AUTO)
+        screen_size = app.primaryScreen().size()
         self.resize(800, 600)
+        self.move((screen_size.width() - self.width()) // 2, (screen_size.height() - self.height()) // 2)
         self.setMinimumSize(400, 300)
         self.setWindowTitle('Sleepy Client')
         self.setWindowIcon(QIcon('assets/images/favicon.png'))
