@@ -188,7 +188,7 @@ class WindowDetectionWidget(BaseWidget):
                     duration=2000,
                     parent=self.parent
                 )
-            self.start_listen()  # 禁用监听
+                self.start_listen()  # 禁用监听
 
             if self.using_fake_window:
                 return
