@@ -14,18 +14,13 @@ from io import TextIOWrapper
 import config as cf
 
 # --- config start
-SERVER = 'https://sleepy.rinlit.cn:443'
-SECRET = 'RinLitCw114514'
-DEVICE_ID = 'pc-1'
-DEVICE_SHOW_NAME = '🖥️ Rin\'s Potato PC'
-CHECK_INTERVAL = 2
 BYPASS_SAME_REQUEST = True
 ENCODING = 'utf-8'  # 控制台输出所用编码，避免编码出错，可选 utf-8 或 gb18030
 SKIPPED_NAMES = ['', '系统托盘溢出窗口。', '新通知', '任务切换']  # 当窗口名为其中任意一项时将不更新
 NOT_USING_NAMES = ['我们喜欢这张图片，因此我们将它与你共享。']  # 当窗口名为其中任意一项时视为未在使用
 # --- config end
 
-stdout = TextIOWrapper(stdout.buffer, encoding=ENCODING)  # https://stackoverflow.com/a/3218048/28091753
+# stdout = TextIOWrapper(stdout.buffer, encoding=ENCODING)  # https://stackoverflow.com/a/3218048/28091753
 _print_ = print
 
 
