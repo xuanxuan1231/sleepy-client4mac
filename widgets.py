@@ -319,6 +319,9 @@ class PhotoWidget(BaseWidget):
             try:
                 shutil.copy(file_path, photo_dir)
                 self.photo_label.setImage(photo_dir)
+
+                self.content_layout.removeWidget(self.tip_no_photo)
+                self.content_layout.addWidget(self.photo_label)
             except Exception as e:
                 logger.error(f'上传照片失败：{e}')
                 InfoBar.error(
