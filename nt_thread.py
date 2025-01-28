@@ -13,6 +13,8 @@ class getDictThread(QThread):
 
     def run(self):
         data = self.get_data()
+        if type(data) is str:
+            data = {'error': data}
         self.json_signal.emit(data)
 
     def get_data(self):
@@ -29,6 +31,8 @@ class getListThread(QThread):
 
     def run(self):
         data = self.get_data()
+        if type(data) is str:
+            data = [data]
         self.json_signal.emit(data)
 
     def get_data(self):
@@ -48,7 +52,7 @@ class postThread(QThread):
     def run(self):
         self.window, self.using = do_update()
         data = self.post_data()
-        self.list_signal.emit([self.window, data])
+        self.list_signal.emit([self.window, data])  # 返回两个参（窗口名+网络返回值）
 
     def post_data(self):
         if self.fake_window != '':

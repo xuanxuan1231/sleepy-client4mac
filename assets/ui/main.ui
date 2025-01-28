@@ -30,11 +30,18 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="TitleLabel" name="TitleLabel">
-     <property name="text">
-      <string>仪表板</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="TitleLabel" name="TitleLabel">
+       <property name="text">
+        <string>仪表板</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="TransparentToolButton" name="add_widget"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="SmoothScrollArea" name="adv_scroll">
@@ -50,7 +57,7 @@
         <x>0</x>
         <y>0</y>
         <width>611</width>
-        <height>418</height>
+        <height>416</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -103,6 +110,16 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>TransparentToolButton</class>
+   <extends>ToolButton</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
   <customwidget>
    <class>SmoothScrollArea</class>
    <extends>QScrollArea</extends>

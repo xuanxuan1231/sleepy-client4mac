@@ -1,26 +1,35 @@
+import os
+import shutil
 from functools import partial
 
+from loguru import logger
+
 import config as cf
-import window_detection as wd
 from nt_thread import getDictThread, postThread
 from datetime import datetime
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QFont
-from PyQt5.QtWidgets import QSizePolicy, QHBoxLayout, QVBoxLayout, QSpacerItem
+from PyQt5.QtWidgets import QSizePolicy, QHBoxLayout, QVBoxLayout, QSpacerItem, QFileDialog
 from qfluentwidgets import FluentIcon as fIcon, StrongBodyLabel, TransparentDropDownToolButton, \
-    IconWidget, RoundMenu, Action, ImageLabel, ElevatedCardWidget, ProgressRing, BodyLabel, PrimaryPushButton, \
+    IconWidget, RoundMenu, Action, ImageLabel, CardWidget, ProgressRing, BodyLabel, PrimaryPushButton, \
     PrimaryDropDownPushButton, SubtitleLabel, InfoBarPosition, InfoBar, LineEdit, SwitchButton
 
+photo_dir = './assets/images/photo.png'
 
-class BaseWidget(ElevatedCardWidget):
+
+class BaseWidget(CardWidget):
     def __init__(self, parent=None, title='基本组件',
-                 icon=fIcon.LIBRARY_FILL.colored(QColor('#666'), QColor('#CCC')) or '/path/to/icon'):
+                 icon=fIcon.LIBRARY_FILL.colored(QColor('#666'), QColor('#CCC')) or '/path/to/icon',
+                 layout=None,
+                 ):
         super().__init__(parent)
         uic.loadUi('./assets/ui/widget-base.ui', self)
 
         self.parent = parent
+        self.layout = layout
+        self.more_options_menu = None
         self.title_label = None
         self.icon_label = None
         self.more_options = None
@@ -33,7 +42,9 @@ class BaseWidget(ElevatedCardWidget):
 
         self.initUi()
 
+        self.setMinimumWidth(250)
         self.setMinimumHeight(250)
+        self.setMaximumWidth(500)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def initUi(self):
@@ -51,20 +62,26 @@ class BaseWidget(ElevatedCardWidget):
             self.icon_label = IconWidget()
             self.icon_label.setIcon(self.icon)
 
-        more_options_menu = RoundMenu(self)
-        more_options_menu.addAction(Action(fIcon.CLOSE, '移除本组件'))
+        self.more_options_menu = RoundMenu(self)
+        self.more_options_menu.addAction(Action(fIcon.CLOSE, '移除本组件', triggered=self.remove_widget))
 
         self.title_label.setText(self.title)
         self.more_options.setFixedSize(32, 26)
         self.icon_label.setFixedSize(18, 18)
 
-        self.more_options.setMenu(more_options_menu)
+        self.more_options.setMenu(self.more_options_menu)
 
         self.top_layout.insertWidget(0, self.icon_label)
 
     def hide_title(self):
         self.title_label.hide()
         self.icon_label.hide()
+
+    def remove_widget(self):
+        widget = find_key(widgets_config, self.__class__)
+
+        cf.widgets_config.remove(widget)
+        self.parent.add_widgets()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -76,8 +93,8 @@ class BaseWidget(ElevatedCardWidget):
 
 
 class WindowDetectionWidget(BaseWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent, '窗口检测', './assets/icon/window-detection.png')
+    def __init__(self, parent=None, layout=None):
+        super().__init__(parent=parent, layout=layout, title='窗口检测', icon='./assets/icon/window-detection.png')
         self.post_thread = None
         self.is_listening = False
         self.using_fake_window = False
@@ -104,6 +121,7 @@ class WindowDetectionWidget(BaseWidget):
 
         self.name_label.setText('设备名称：')
         self.name.setText(cf.device_name)
+        self.name.textChanged.connect(lambda text: cf.config.upload_config('device_name', text))
         self.name.setPlaceholderText('您的设备名称')
 
         self.window_name_label.setText('检测窗口：')
@@ -111,7 +129,7 @@ class WindowDetectionWidget(BaseWidget):
         self.window_name.setPlaceholderText('检测到的窗口名称将会显示于此')
         self.window_name.textEdited.connect(self.set_fake_window)
 
-        self.play_pause_button.setText('开始检测')
+        self.play_pause_button.setText('开始上传')
         self.play_pause_button.setIcon(fIcon.PLAY)
         self.play_pause_button.clicked.connect(self.start_listen)
 
@@ -159,6 +177,19 @@ class WindowDetectionWidget(BaseWidget):
 
     def update_window(self):
         def callback(data):
+            net_info = data[1]
+            if net_info['success'] is False:
+                InfoBar.error(
+                    title='上传窗口失败',
+                    content=f"错误信息：(code:{net_info['code']}){net_info['message']}",
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP,
+                    duration=2000,
+                    parent=self.parent
+                )
+            self.start_listen()  # 禁用监听
+
             if self.using_fake_window:
                 return
             self.window_name.setText(data[0])
@@ -169,10 +200,16 @@ class WindowDetectionWidget(BaseWidget):
 
 
 class StatusWidget(BaseWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent, '切换状态', './assets/icon/check-status.png')
+    def __init__(self, parent=None, layout=None):
+        super().__init__(parent=parent, layout=layout, title='切换状态', icon='./assets/icon/check-status.png')
         # status = ['复活啦 ( •̀ ω •́ )✧', '似了 o(TヘTo)']
+        # noinspection SpellCheckingInspection
+        self.font_color = {
+            'awake': (QColor('#3BB871'), QColor('#87FFBB')),
+            'sleeping': (QColor('#666'), QColor('#CCC')),
+        }
 
+        self.get_json_thread = None
         self.change_status_thread = None
         menu = RoundMenu()
         # menu.addActions([
@@ -190,7 +227,6 @@ class StatusWidget(BaseWidget):
         self.body_label.setAlignment(Qt.AlignCenter)
         self.status_label.setText(cf.status_info['name'])  # 状态
         self.status_label.setAlignment(Qt.AlignCenter)
-        self.status_label.setTextColor(QColor('#666'), QColor('#CCC'))
         self.switch_button.setText('设置状态')
 
         self.switch_button.setIcon(fIcon.MESSAGE)
@@ -201,10 +237,32 @@ class StatusWidget(BaseWidget):
         self.content_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
         self.content_layout.addWidget(self.switch_button)
 
+        self.get_color(cf.status_info['color'])
+
+    def get_color(self, color_name=str):  # 获取颜色
+        if color_name in self.font_color:
+            self.status_label.setTextColor(self.font_color[color_name][0], self.font_color[color_name][1])
+            return self.font_color[color_name]
+        self.status_label.setTextColor(QColor('#666'), QColor('#CCC'))
+
+    def get_status(self):
+        def callback_status(data):
+            cf.status_info = data['info']
+            self.status_label.setText(cf.status_info['name'])  # 状态
+            self.get_color(cf.status_info['color'])
+            logger.debug(f'当前状态：{cf.status_info}')
+
+        self.get_json_thread = getDictThread(f'{cf.server}/query')
+        self.get_json_thread.json_signal.connect(callback_status)
+        self.get_json_thread.start()
+        logger.debug('开始获取状态信息')
+
     def change_status(self, status):
         def callback(data):
+            # 部分源于 wyf9
             try:
                 print(f'success: [{data["success"]}], code: [{data["code"]}], set_to: [{data["set_to"]}]')
+                self.get_status()
                 current_state = cf.status_dict[data['set_to']].split(' - ')[0]
 
                 InfoBar.success(
@@ -216,7 +274,6 @@ class StatusWidget(BaseWidget):
                     duration=2000,
                     parent=self.parent
                 )
-                self.status_label.setText(current_state)  # 状态
             except:
                 print(f'RawData: {data}')
                 InfoBar.error(
@@ -234,9 +291,57 @@ class StatusWidget(BaseWidget):
         self.change_status_thread.start()
 
 
+class PhotoWidget(BaseWidget):
+    def __init__(self, parent=None, layout=None):
+        super().__init__(parent=parent, layout=layout, title='照片墙', icon='./assets/icon/photo.png')
+        self.photo_label = ImageLabel()
+
+        self.more_options_menu.addAction(Action(fIcon.ADD, '上传照片', triggered=self.upload_photo))
+
+        self.photo_label.setImage(photo_dir)
+        self.photo_label.setScaledContents(True)
+        self.photo_label.scaledToWidth(self.width() - 30)
+        self.photo_label.setBorderRadius(8, 8, 8, 8)
+
+        self.tip_no_photo = BodyLabel()
+        self.tip_no_photo.setText('还没有选择照片啊……\nㄟ( ▔, ▔ )ㄏ')
+        self.tip_no_photo.setAlignment(Qt.AlignCenter)
+
+        self.content_layout.setContentsMargins(0, 0, 0, 0)
+        if os.path.exists(photo_dir):
+            self.content_layout.addWidget(self.photo_label)
+        else:
+            self.content_layout.addWidget(self.tip_no_photo)
+
+    def upload_photo(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, '上传照片', '', '图片文件 (*.jpg *.png)')
+        if file_path:
+            try:
+                shutil.copy(file_path, photo_dir)
+                self.photo_label.setImage(photo_dir)
+            except Exception as e:
+                logger.error(f'上传照片失败：{e}')
+                InfoBar.error(
+                    title='上传照片失败',
+                    content=f"错误信息：{e}",
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP,
+                    duration=2000,
+                    parent=self.parent
+                )
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.width() < 550:
+            self.photo_label.scaledToWidth(self.width() - 30)
+        else:
+            self.photo_label.scaledToWidth(550 - 30)
+
+
 class DayProgressWidget(BaseWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent, '今日进度', './assets/icon/day-progress.png')
+    def __init__(self, parent=None, layout=None):
+        super().__init__(parent=parent, layout=layout, title='今日进度', icon='./assets/icon/day-progress.png')
         self.body_label = BodyLabel()
         self.body_label.setText(f'{datetime.now().strftime("%H:%M:%S")}\n今天已经过了')
         self.body_label.setFont(QFont('Microsoft YaHei', 12))
@@ -268,8 +373,25 @@ widgets_config = {
     'base': BaseWidget,
     'state': StatusWidget,
     'day_progress': DayProgressWidget,
-    'window-detection': WindowDetectionWidget
+    'window-detection': WindowDetectionWidget,
+    'photo': PhotoWidget
 }
+
+widgets_names = {
+    'base': '基本组件(测试用)',
+    'state': '切换状态',
+    'day_progress': '今日进度',
+    'window-detection': '窗口检测',
+    'photo': '照片墙'
+}
+
+
+def find_key(dictionary, value):
+    for key, val in dictionary.items():
+        if val == value:
+            return key
+    logger.warning(f'未找到对应的键值对：{value}')
+    return 'base'
 
 
 def get_widget(widget_name):
