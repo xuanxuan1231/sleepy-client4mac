@@ -178,17 +178,31 @@ class WindowDetectionWidget(BaseWidget):
     def update_window(self):
         def callback(data):
             net_info = data[1]
+            if type(net_info) is str:
+                InfoBar.error(
+                    title='上传窗口失败',
+                    content=f"错误信息：{net_info}",
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.BOTTOM,
+                    duration=-1,
+                    parent=self.parent
+                )
+                self.start_listen()  # 禁用监听
+                return
+
             if net_info['success'] is False:
                 InfoBar.error(
                     title='上传窗口失败',
                     content=f"错误信息：(code:{net_info['code']}){net_info['message']}",
                     orient=Qt.Horizontal,
                     isClosable=True,
-                    position=InfoBarPosition.TOP,
-                    duration=2000,
+                    position=InfoBarPosition.BOTTOM,
+                    duration=-1,
                     parent=self.parent
                 )
                 self.start_listen()  # 禁用监听
+                return
 
             if self.using_fake_window:
                 return
