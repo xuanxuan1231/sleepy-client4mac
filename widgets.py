@@ -10,11 +10,12 @@ from datetime import datetime
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QIcon
 from PyQt5.QtWidgets import QSizePolicy, QHBoxLayout, QVBoxLayout, QSpacerItem, QFileDialog
 from qfluentwidgets import FluentIcon as fIcon, StrongBodyLabel, TransparentDropDownToolButton, \
     IconWidget, RoundMenu, Action, ImageLabel, CardWidget, ProgressRing, BodyLabel, PrimaryPushButton, \
-    PrimaryDropDownPushButton, SubtitleLabel, InfoBarPosition, InfoBar, LineEdit, SwitchButton
+    PrimaryDropDownPushButton, SubtitleLabel, InfoBarPosition, InfoBar, LineEdit, SwitchButton, TransparentToolButton, \
+    isDarkTheme
 
 photo_dir = './assets/images/photo.png'
 
@@ -66,7 +67,7 @@ class BaseWidget(CardWidget):
         self.more_options_menu.addAction(Action(fIcon.CLOSE, '移除本组件', triggered=self.remove_widget))
 
         self.title_label.setText(self.title)
-        self.more_options.setFixedSize(32, 26)
+        self.more_options.setFixedSize(36, 30)
         self.icon_label.setFixedSize(18, 18)
 
         self.more_options.setMenu(self.more_options_menu)
@@ -100,6 +101,8 @@ class WindowDetectionWidget(BaseWidget):
         self.using_fake_window = False
         self.fake_window_name = ''
 
+        self.floating_widget = None
+        self.floating_widget_button = TransparentToolButton()
         self.window_name_layout = QHBoxLayout()
         self.window_name_label = BodyLabel()
         self.window_name = LineEdit()
@@ -114,6 +117,8 @@ class WindowDetectionWidget(BaseWidget):
 
         self.play_pause_button = PrimaryPushButton()
 
+        self.floating_widget_button.setIcon(fIcon.MINIMIZE)
+        self.floating_widget_button.clicked.connect(self.open_floating_widget)
         self.fake_label.setText('使用自定义名称：')
         self.update_fake_window.checkedChanged.connect(self.set_using_fake_window)
         self.fake_layout.addWidget(self.fake_label)
@@ -133,6 +138,7 @@ class WindowDetectionWidget(BaseWidget):
         self.play_pause_button.setIcon(fIcon.PLAY)
         self.play_pause_button.clicked.connect(self.start_listen)
 
+        self.top_layout.insertWidget(3, self.floating_widget_button)
         self.window_name_layout.addWidget(self.window_name_label)
         self.window_name_layout.addWidget(self.window_name)
         self.name_layout.addWidget(self.name_label)
@@ -146,6 +152,10 @@ class WindowDetectionWidget(BaseWidget):
         self.update_timer = QTimer()
         self.update_timer.setInterval(cf.check_interval)
         self.update_timer.timeout.connect(self.update_window)
+
+    def open_floating_widget(self):
+        floating_widget = FloatingWidgetWD(self.parent)
+        floating_widget.show()
 
     def set_fake_window(self, text):
         self.fake_window_name = text
@@ -211,6 +221,60 @@ class WindowDetectionWidget(BaseWidget):
         self.post_thread = postThread(self.fake_window_name)
         self.post_thread.list_signal.connect(callback)
         self.post_thread.start()
+
+
+class FloatingWidgetWD(WindowDetectionWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=None, layout=None)
+        self.parent = parent  # 父窗口
+        self.parent.showMinimized()  # 最小化父窗口
+        self.offset = None
+        self.dragging = False
+
+        self.more_options.hide()
+
+        self.floating_widget_button.clicked.disconnect()
+        self.floating_widget_button.clicked.connect(self.close)
+
+    def initUi(self):
+        super().initUi()
+        self.setWindowTitle('窗口检测')
+        self.setWindowIcon(QIcon('./assets/icon/window-detection.png'))
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)  # 作为工具窗口防Alt+Tab()
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.resize(300, 200)
+
+    def closeEvent(self, event):
+        event.accept()
+        self.parent.showNormal()  # 显示父窗口
+        if self.is_listening:
+            self.start_listen()
+
+    # 颜色
+    def _normalBackgroundColor(self):  # DARK -> LIGHT
+        return QColor(255, 255, 255, 240) if isDarkTheme() else QColor(255, 255, 255, 230)
+
+    def _hoverBackgroundColor(self):
+        return QColor(255, 255, 255, 255) if isDarkTheme() else QColor(255, 255, 255, 252)
+
+    def _pressedBackgroundColor(self):
+        return QColor(255, 255, 255, 237) if isDarkTheme() else QColor(255, 255, 255, 215)
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.offset = event.globalPos() - self.frameGeometry().topLeft()
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        if self.dragging:
+            self.move(event.globalPos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
 
 
 class StatusWidget(BaseWidget):

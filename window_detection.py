@@ -87,10 +87,10 @@ def post_to_api(window, using):
         return f'Error: {e}'
 
 
-def main():
-    while True:
-        do_update()
-        sleep(CHECK_INTERVAL)
+# def main():
+#     while True:
+#         do_update()
+#         sleep(CHECK_INTERVAL)
 
 
 # if __name__ == '__main__':
