@@ -252,13 +252,13 @@ class FloatingWidgetWD(WindowDetectionWidget):
 
     # 颜色
     def _normalBackgroundColor(self):  # DARK -> LIGHT
-        return QColor(255, 255, 255, 240) if isDarkTheme() else QColor(255, 255, 255, 230)
+        return QColor(37, 37, 38, 230) if isDarkTheme() else QColor(255, 255, 255, 230)
 
     def _hoverBackgroundColor(self):
-        return QColor(255, 255, 255, 255) if isDarkTheme() else QColor(255, 255, 255, 252)
+        return QColor(37, 37, 38, 252) if isDarkTheme() else QColor(255, 255, 255, 252)
 
     def _pressedBackgroundColor(self):
-        return QColor(255, 255, 255, 237) if isDarkTheme() else QColor(255, 255, 255, 215)
+        return QColor(37, 37, 38, 215) if isDarkTheme() else QColor(255, 255, 255, 215)
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
