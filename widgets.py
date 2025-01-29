@@ -17,6 +17,7 @@ from qfluentwidgets import FluentIcon as fIcon, StrongBodyLabel, TransparentDrop
     PrimaryDropDownPushButton, SubtitleLabel, InfoBarPosition, InfoBar, LineEdit, SwitchButton, TransparentToolButton, \
     isDarkTheme
 
+RETRY = 3
 photo_dir = './assets/images/photo.png'
 
 
@@ -96,6 +97,7 @@ class BaseWidget(CardWidget):
 class WindowDetectionWidget(BaseWidget):
     def __init__(self, parent=None, layout=None):
         super().__init__(parent=parent, layout=layout, title='窗口检测', icon='./assets/icon/window-detection.png')
+        self.retry_count = 0
         self.post_thread = None
         self.is_listening = False
         self.using_fake_window = False
@@ -179,6 +181,7 @@ class WindowDetectionWidget(BaseWidget):
             self.is_listening = True
             return
 
+        self.retry_count = 0
         self.play_pause_button.setText('开始上传')
         self.play_pause_button.setIcon(fIcon.PLAY)
         # self.window_name.clear()
@@ -188,17 +191,24 @@ class WindowDetectionWidget(BaseWidget):
     def update_window(self):
         def callback(data):
             net_info = data[1]
+
             if type(net_info) is str:
-                InfoBar.error(
-                    title='上传窗口失败',
-                    content=f"错误信息：{net_info}",
-                    orient=Qt.Horizontal,
-                    isClosable=True,
-                    position=InfoBarPosition.BOTTOM,
-                    duration=-1,
-                    parent=self.parent
-                )
-                self.start_listen()  # 禁用监听
+                self.retry_count += 1
+
+                logger.warning(f'上传窗口失败[{self.retry_count}/{RETRY}]：{net_info}')
+
+                if self.retry_count > RETRY:  # 重试次数达到上限
+                    logger.error(f'上传窗口失败[达到上限]：{net_info}')
+                    InfoBar.error(
+                        title='上传窗口失败',
+                        content=f"错误信息：{net_info}",
+                        orient=Qt.Horizontal,
+                        isClosable=True,
+                        position=InfoBarPosition.BOTTOM,
+                        duration=-1,
+                        parent=self.parent
+                    )
+                    self.start_listen()  # 禁用监听
                 return
 
             if net_info['success'] is False:
