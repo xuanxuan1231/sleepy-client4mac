@@ -22,23 +22,28 @@
 
 ### 特性
 
-- 精美的 Fluent Design 风格界面
-- 简介明了的设置
-- 更友好且方便的操作体验
-- 错误处理
-- 可自定义扩展（）
+- [x] 精美的 Fluent Design 风格界面
+- [x] 简介明了的设置
+- [x] 浮动窗口
+- [x] 更友好且方便的操作体验
+- [x] 错误处理
+- [ ] 可自定义扩展（自己改代码（））
 
 ### TODO
 
 - [ ] 开机自启动
-- [ ] 欢迎建议！
+- [ ] 实时显示日志
 
 ### 截图
+
 ![截图1（亮色）](docs/images/light-1.png)
-<center style="font-size:14px;color:#C0C0C0;">浅色模式</center> 
+<p align="center" style="font-size:14px;color:#C0C0C0;">浅色模式</p> 
+
+![截图-浮窗](docs/images/floating-widget.png)
+<p align="center" style="font-size:14px;color:#C0C0C0;">浮窗</p> 
 
 ![截图2（暗色）](docs/images/dark-1.png)
-<center style="font-size:14px;color:#C0C0C0;">深色模式</center>
+<p align="center" style="font-size:14px;color:#C0C0C0;">深色模式</p>
 
 ## 许可证
 本插件采用了 GNU-GPLv3 许可证，详情请查看 [LICENSE](LICENSE) 文件。
