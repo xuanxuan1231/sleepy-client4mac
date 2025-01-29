@@ -59,3 +59,4 @@ Thanks goes to these wonderful people:
 
 - [PyQt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+- [wyf9/sleepy](https://github.com/wyf9/sleepy)
