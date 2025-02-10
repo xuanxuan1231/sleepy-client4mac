@@ -17,8 +17,14 @@ from qfluentwidgets import FluentIcon as fIcon, StrongBodyLabel, TransparentDrop
     PrimaryDropDownPushButton, SubtitleLabel, InfoBarPosition, InfoBar, LineEdit, SwitchButton, TransparentToolButton, \
     isDarkTheme
 
+
+# 字符串拼接大法！
+base = os.path.dirname(os.path.abspath(__file__))
+if base.endswith('MacOS'):
+    base = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)), 'Resources')
+
 RETRY = 3
-photo_dir = './assets/images/photo.png'
+photo_dir = f'{base}/assets/images/photo.png'
 
 
 class BaseWidget(CardWidget):
@@ -27,7 +33,7 @@ class BaseWidget(CardWidget):
                  layout=None,
                  ):
         super().__init__(parent)
-        uic.loadUi('./assets/ui/widget-base.ui', self)
+        uic.loadUi(f'{base}/assets/ui/widget-base.ui', self)
 
         self.parent = parent
         self.layout = layout
@@ -96,7 +102,7 @@ class BaseWidget(CardWidget):
 
 class WindowDetectionWidget(BaseWidget):
     def __init__(self, parent=None, layout=None):
-        super().__init__(parent=parent, layout=layout, title='窗口检测', icon='./assets/icon/window-detection.png')
+        super().__init__(parent=parent, layout=layout, title='窗口检测', icon=f'{base}/assets/icon/window-detection.png')
         self.retry_count = 0
         self.post_thread = None
         self.is_listening = False
@@ -249,7 +255,7 @@ class FloatingWidgetWD(WindowDetectionWidget):
     def initUi(self):
         super().initUi()
         self.setWindowTitle('窗口检测')
-        self.setWindowIcon(QIcon('./assets/icon/window-detection.png'))
+        self.setWindowIcon(QIcon(f'{base}/assets/icon/window-detection.png'))
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)  # 作为工具窗口防Alt+Tab()
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.resize(300, 200)
@@ -289,7 +295,7 @@ class FloatingWidgetWD(WindowDetectionWidget):
 
 class StatusWidget(BaseWidget):
     def __init__(self, parent=None, layout=None):
-        super().__init__(parent=parent, layout=layout, title='切换状态', icon='./assets/icon/check-status.png')
+        super().__init__(parent=parent, layout=layout, title='切换状态', icon=f'{base}/assets/icon/check-status.png')
         # status = ['复活啦 ( •̀ ω •́ )✧', '似了 o(TヘTo)']
         # noinspection SpellCheckingInspection
         self.font_color = {
@@ -381,7 +387,7 @@ class StatusWidget(BaseWidget):
 
 class PhotoWidget(BaseWidget):
     def __init__(self, parent=None, layout=None):
-        super().__init__(parent=parent, layout=layout, title='照片墙', icon='./assets/icon/photo.png')
+        super().__init__(parent=parent, layout=layout, title='照片墙', icon=f'{base}/assets/icon/photo.png')
         self.photo_label = ImageLabel()
 
         self.more_options_menu.addAction(Action(fIcon.ADD, '上传照片', triggered=self.upload_photo))
@@ -432,7 +438,7 @@ class PhotoWidget(BaseWidget):
 
 class DayProgressWidget(BaseWidget):
     def __init__(self, parent=None, layout=None):
-        super().__init__(parent=parent, layout=layout, title='今日进度', icon='./assets/icon/day-progress.png')
+        super().__init__(parent=parent, layout=layout, title='今日进度', icon=f'{base}/assets/icon/day-progress.png')
         self.body_label = BodyLabel()
         self.body_label.setText(f'{datetime.now().strftime("%H:%M:%S")}\n今天已经过了')
         self.body_label.setFont(QFont('Microsoft YaHei', 12))

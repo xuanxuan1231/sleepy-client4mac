@@ -1,4 +1,5 @@
 import sys
+import os
 
 import config as cf
 
@@ -22,9 +23,16 @@ QApplication.setHighDpiScaleFactorRoundingPolicy(
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
+# 字符串拼接大法！
+base = os.path.dirname(os.path.abspath(__file__))
+if base.endswith('MacOS'):
+    base = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)), 'Resources')
+
+
 # loguru
-logger.add("logs/sleepy_client_win_{{time}}.log", rotation="1 MB", encoding="utf-8",
+logger.add(f"{base}/logs/sleepy_client_win_{{time}}.log", rotation="1 MB", encoding="utf-8",
            retention="3 days")
+
 
 random_number = randint(1000, 9999)
 DEFAULT_CONFIG = {
@@ -97,14 +105,14 @@ class SleepyClient(FluentWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         # 初始化配置
-        cf.config = cf.ConfigMgr('./', 'config.json')
+        cf.config = cf.ConfigMgr(f'{base}/', 'config.json')
         cf.config.load_config(DEFAULT_CONFIG)
         update_cf_var(cf.config)
 
         # 加载 UI
-        self.dashboard_interface = uic.loadUi('./assets/ui/main.ui')
+        self.dashboard_interface = uic.loadUi(f'{base}/assets/ui/main.ui')
         self.dashboard_interface.setObjectName('mainPage')
-        self.settings_interface = uic.loadUi('./assets/ui/settings.ui')
+        self.settings_interface = uic.loadUi(f'{base}/assets/ui/settings.ui')
         self.dashboard_interface.setObjectName('settingsPage')
 
         self.widgets_grid = None
@@ -258,7 +266,7 @@ class SleepyClient(FluentWindow):
         self.move((screen_size.width() - self.width()) // 2, (screen_size.height() - self.height()) // 2)
         self.setMinimumSize(400, 300)
         self.setWindowTitle('Sleepy Client')
-        self.setWindowIcon(QIcon('assets/images/favicon.png'))
+        self.setWindowIcon(QIcon(f'{base}/assets/images/favicon.png'))
         self.navigationInterface.setExpandWidth(150)
         self.navigationInterface.setMinimumExpandWidth(200)
         self.navigationInterface.expand(useAni=False)

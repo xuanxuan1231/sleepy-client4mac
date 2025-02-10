@@ -12,6 +12,12 @@ device_name = ''  # 设备名称
 device_id = ''  # 设备id，我也不知道怎么用
 check_interval = 2000  # 检查间隔（ms）
 
+# 字符串拼接大法！
+base = os.path.dirname(os.path.abspath(__file__))
+if base.endswith('MacOS'):
+    base = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)), 'Resources')
+
+
 
 class ConfigMgr:  # 简易的配置文件管理器
     def __init__(self, path, filename):  # 初始化(路径和文件名)
@@ -76,4 +82,4 @@ class ConfigMgr:  # 简易的配置文件管理器
         return json.dumps(self.config, ensure_ascii=False, indent=4)
 
 
-config = ConfigMgr('./', 'config.json')  # 实例化配置文件管理器
+config = ConfigMgr(f'{base}/', 'config.json')  # 实例化配置文件管理器

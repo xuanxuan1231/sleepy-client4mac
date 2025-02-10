@@ -5,7 +5,8 @@ win_device.py
 by: @wyf9
 依赖: pywin32, requests
 '''
-from win32gui import GetWindowText, GetForegroundWindow  # type: ignore
+#from win32gui import GetWindowText, GetForegroundWindow  # type: ignore
+import AppKit
 from requests import post
 from datetime import datetime
 from time import sleep
@@ -16,7 +17,7 @@ import config as cf
 # --- config start
 BYPASS_SAME_REQUEST = True
 ENCODING = 'utf-8'  # 控制台输出所用编码，避免编码出错，可选 utf-8 或 gb18030
-SKIPPED_NAMES = ['', '系统托盘溢出窗口。', '新通知', '任务切换']  # 当窗口名为其中任意一项时将不更新
+SKIPPED_NAMES = ['', '系统托盘溢出窗口。', '新通知', '任务切换', 'Sleepy']  # 当窗口名为其中任意一项时将不更新
 NOT_USING_NAMES = ['我们喜欢这张图片，因此我们将它与你共享。']  # 当窗口名为其中任意一项时视为未在使用
 # --- config end
 
@@ -37,7 +38,8 @@ last_window = ''
 
 def do_update():
     global last_window
-    window = GetWindowText(GetForegroundWindow())  # type: ignore
+    app = AppKit.NSWorkspace.sharedWorkspace().frontmostApplication()
+    window = app.localizedName()
     print(f'--- Window: `{window}`')
 
     # 判断是否在使用
