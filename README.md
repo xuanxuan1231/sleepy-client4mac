@@ -20,6 +20,8 @@
 ### 概括
 本项目是为了改善 [sleepy](https://github.com/wyf9/sleepy) 中客户端糟糕的体验诞生的。提供了更加美观的界面，更加友好的操作体验。特性请详见[此处](#特性)。
 
+由于原版并不支持 macOS，本项目在 [RinLit 的原项目](https://github.com/RinLit-233-shiroko/sleepy-client)的基础上进行修改，以支持 macOS。
+
 ### 特性
 
 - [x] 精美的 Fluent Design 风格界面
@@ -55,7 +57,7 @@ Copyright © 2025 RinLit.
 
 ### 贡献者
 Thanks goes to these wonderful people:
-[![Contributors](http://contrib.nn.ci/api?repo=Rinlit-233-shiroko/sleepy-client)](https://github.com/rinlit-233-shiroko/sleepy-client/graphs/contributors)
+[![Contributors](http://contrib.nn.ci/api?repo=xuanxuan1231/sleepy-client4mac)](https://github.com/xuanxuan1231/sleepy-client4mac/graphs/contributors)
 
 ### 特别使用的资源
 
