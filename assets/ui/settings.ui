@@ -364,7 +364,7 @@
               <item>
                <widget class="CaptionLabel" name="CaptionLabel_10">
                 <property name="text">
-                 <string>Copyright © RinLit 2025. All Rights Reseverd.</string>
+                 <string>Copyright © RinLit 2025. All Rights Reserved.</string>
                 </property>
                 <property name="wordWrap">
                  <bool>false</bool>
