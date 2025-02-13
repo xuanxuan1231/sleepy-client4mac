@@ -95,7 +95,7 @@
               <item>
                <widget class="StrongBodyLabel" name="StrongBodyLabel_7">
                 <property name="text">
-                 <string>您的服务器地址(包括协议头)</string>
+                 <string>您的服务器地址(包括 http:// 或 https://)</string>
                 </property>
                </widget>
               </item>
