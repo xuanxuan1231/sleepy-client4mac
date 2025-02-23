@@ -6,9 +6,9 @@
 
 <hr>
 
-[![星标](https://img.shields.io/github/stars/rinlit-233-shiroko/sleepy-client?style=for-the-badge&color=orange&label=星标)](https://github.com/rinlit-233-shiroko/sleepy-client)
-[![开源许可](https://img.shields.io/badge/license-GPL3.0-darkcyan.svg?label=开源许可证&style=for-the-badge)](https://github.com/rinlit-233-shiroko/sleepy-client)
-[![下载量](https://img.shields.io/github/downloads/rinlit-233-shiroko/sleepy-client/total.svg?label=下载量&color=green&style=for-the-badge)](https://github.com/rinlit-233-shiroko/sleepy-client)
+[![星标](https://img.shields.io/github/stars/xuanxuan1231/sleepy-client4mac?style=for-the-badge&color=orange&label=星标)](https://github.com/xuanxuan1231/sleepy-client4mac)
+[![开源许可](https://img.shields.io/badge/license-GPL3.0-darkcyan.svg?label=开源许可证&style=for-the-badge)](https://github.com/xuanxuan1231/sleepy-client4mac)
+[![下载量](https://img.shields.io/github/downloads/xuanxuan1231/sleepy-client4mac/total.svg?label=下载量&color=green&style=for-the-badge)](https://github.com/xuanxuan1231/sleepy-client4mac)
 
 </div>
 
