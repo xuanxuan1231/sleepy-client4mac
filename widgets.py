@@ -211,10 +211,9 @@ class WindowDetectionWidget(BaseWidget):
                         orient=Qt.Horizontal,
                         isClosable=True,
                         position=InfoBarPosition.BOTTOM,
-                        duration=-1,
+                        duration=cf.check_interval,
                         parent=self.parent
                     )
-                    self.start_listen()  # 禁用监听
                 return
 
             if net_info['success'] is False:
