@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication, QGridLayout
 
 from qfluentwidgets import FluentWindow, SplashScreen, setTheme, Theme, LineEdit, FluentIcon as fIcon, \
     TransparentToolButton, PasswordLineEdit, ListWidget, MessageBoxBase, SubtitleLabel, BodyLabel, InfoBar, \
-    InfoBarPosition, HyperlinkLabel
+    InfoBarPosition, HyperlinkLabel, ComboBox
 from nt_thread import getListThread, getDictThread
 from loguru import logger
 from random import randint
@@ -147,6 +147,20 @@ class SleepyClient(FluentWindow):
         device_id_input = self.settings_interface.findChild(LineEdit, 'device_id')
         device_id_input.setText(cf.device_id)
         device_id_input.textChanged.connect(lambda text: cf.config.upload_config('device_id', text))
+
+        proxy_protocol_input = self.settings_interface.findChild(ComboBox, 'protocol')
+        proxy_protocols = ['No', 'http', 'https', 'socks']
+        proxy_protocol_input.addItems(proxy_protocols)
+        proxy_protocol_input.currentIndexChanged.connect(lambda index: cf.config.upload_config('protocol', proxy_protocol_input.currentText()))
+
+        proxy_server_input = self.settings_interface.findChild(LineEdit, 'proxy_server')
+        proxy_server_input.textChanged.connect(lambda text: cf.config.upload_config('proxy_server', text))
+
+        proxy_user_input = self.settings_interface.findChild(LineEdit, 'user')
+        proxy_user_input.textChanged.connect(lambda text: cf.config.upload_config('proxy_user', text))
+
+        proxy_pass_input = self.settings_interface.findChild(LineEdit, 'pass')
+        proxy_pass_input.textChanged.connect(lambda text: cf.config.upload_config('proxy_pass', text))
 
         github_link = self.settings_interface.findChild(HyperlinkLabel, 'github_link')
         github_link.setUrl(QUrl('https://github.com/RinLit-233-shiroko/sleepy-client'))

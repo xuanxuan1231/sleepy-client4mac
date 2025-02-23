@@ -10,6 +10,10 @@ server = ''  # 服务器地址
 secret = ''  # 密钥
 device_name = ''  # 设备名称
 device_id = ''  # 设备id，我也不知道怎么用
+proxy_protocol = ''
+proxy = ''
+proxy_user = ''
+proxy_pass = ''
 check_interval = 2000  # 检查间隔（ms）
 
 # 字符串拼接大法！

@@ -69,6 +69,15 @@ def do_update():
 def post_to_api(window, using):
     # POST to api
     print(f'POST {cf.server}')
+    if cf.proxy_protocol != 'No':
+        if cf.proxy_user != '':
+            proxies = {'http': f'{cf.proxy_protocol}://{cf.proxy_user}:{cf.proxy_pass}@{cf.proxy}',
+                       'https': f'{cf.proxy_protocol}://{cf.proxy_user}:{cf.proxy_pass}@{cf.proxy}' }
+        else:
+            proxies = {'http': f'{cf.proxy_protocol}://{cf.proxy}',
+                       'https': f'{cf.proxy_protocol}://{cf.proxy}'}
+    else:
+        proxies = {'http': None, 'https': None}
     try:
         resp = post(url=f'{cf.server}/device/set', json={
             'secret': cf.secret,
@@ -78,10 +87,7 @@ def post_to_api(window, using):
             'app_name': window
         }, headers={
             'Content-Type': 'application/json'
-        }, proxies={
-            'https': None,
-            'http': None
-        })
+        }, proxies=proxies)
         print(f'Response: {resp.status_code} - {resp.json()}')
         return resp.json()
     except Exception as e:
